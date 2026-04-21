@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { CATEGORIES, CAT_COLORS, CAT_BG } from '../constants';
-import { exportJSON, importJSON } from '../storage';
+import { exportJSON, importJSONFile } from '../storage';
 
 export default function Compose({ thoughts, onAddThought, onImport }) {
-  const [input, setInput] = useState('');
+  const [input, setInput]                       = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [justAdded, setJustAdded] = useState(false);
-  const [error, setError] = useState('');
-  const fileRef = useRef(null);
+  const [date, setDate]                         = useState('');
+  const [course, setCourse]                     = useState('');
+  const [justAdded, setJustAdded]               = useState(false);
+  const [error, setError]                       = useState('');
+  const fileRef                                 = useRef(null);
 
   function toggleCategory(cat) {
     setSelectedCategories(prev =>
@@ -28,9 +30,11 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
       return;
     }
     setError('');
-    onAddThought(trimmed, selectedCategories);
+    onAddThought(trimmed, selectedCategories, date, course);
     setInput('');
     setSelectedCategories([]);
+    setDate('');
+    setCourse('');
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   }
@@ -40,6 +44,36 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
       e.preventDefault();
       handleSubmit();
     }
+  }
+
+  function handleExportCSV() {
+    if (thoughts.length === 0) return;
+
+    const headers = ['Date', 'Course', 'Thought', 'Categories', 'Note'];
+
+    const rows = thoughts.map(t => {
+      const date = new Date(t.timestamp).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+      return [
+        `"${t.date || date}"`,
+        `"${(t.course || '').replace(/"/g, '""')}"`,
+        `"${t.text.replace(/"/g, '""')}"`,
+        `"${t.categories.join(', ')}"`,
+        `"${(t.note || '').replace(/"/g, '""')}"`,
+      ].join(',');
+    });
+
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `golf-thoughts-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -59,13 +93,82 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           fontSize: 22,
           fontWeight: 'bold',
           fontStyle: 'italic',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
         }}>
           Log a Thought
         </div>
       </div>
 
-      {/* Text input */}
+      {/* Date and Course row */}
+      <div style={{
+        display: 'flex',
+        gap: 16,
+        marginBottom: 16,
+      }}>
+        {/* Date field */}
+        <div style={{ flex: 1 }}>
+          <label style={{
+            display: 'block',
+            fontSize: 9,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: '#8b7355',
+            fontFamily: 'Geist Mono',
+            marginBottom: 6,
+          }}>
+            Date
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            style={{
+              width: '100%',
+              background: '#ede3c8',
+              border: '1px solid #c8b88a',
+              padding: '10px 12px',
+              fontSize: 13,
+              fontFamily: 'Geist Mono',
+              color: '#1a1208',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        {/* Course field */}
+        <div style={{ flex: 2 }}>
+          <label style={{
+            display: 'block',
+            fontSize: 9,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: '#8b7355',
+            fontFamily: 'Geist Mono',
+            marginBottom: 6,
+          }}>
+            Course (optional)
+          </label>
+          <input
+            type="text"
+            value={course}
+            onChange={e => setCourse(e.target.value)}
+            placeholder="e.g. Mastick Woods"
+            style={{
+              width: '100%',
+              background: '#ede3c8',
+              border: '1px solid #c8b88a',
+              padding: '10px 12px',
+              fontSize: 13,
+              fontFamily: 'Geist Mono',
+              fontStyle: 'italic',
+              color: '#1a1208',
+              outline: 'none',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Thought textarea */}
       <textarea
         value={input}
         onChange={e => {
@@ -81,7 +184,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           border: '1px solid #c8b88a',
           padding: '16px 18px',
           fontSize: 16,
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           fontStyle: 'italic',
           color: '#1a1208',
           outline: 'none',
@@ -93,11 +196,11 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
       {/* Category selector */}
       <div style={{ marginTop: 16 }}>
         <div style={{
-          fontSize: 10,
+          fontSize: 9,
           letterSpacing: '0.2em',
           color: '#8b7355',
           textTransform: 'uppercase',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           marginBottom: 10,
         }}>
           Select Categories
@@ -121,8 +224,9 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  fontFamily: 'Georgia',
+                  fontFamily: 'Geist Mono',
                   transition: 'all 0.15s',
+                  cursor: 'pointer',
                 }}
               >
                 {cat}
@@ -134,7 +238,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           marginTop: 8,
           fontSize: 11,
           color: '#a89878',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           fontStyle: 'italic',
         }}>
           {selectedCategories.length === 0
@@ -143,7 +247,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         </div>
       </div>
 
-      {/* Error message */}
+      {/* Error */}
       {error && (
         <div style={{
           marginTop: 12,
@@ -151,7 +255,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           background: '#f5e4e4',
           borderLeft: '3px solid #c87a7a',
           fontSize: 13,
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           color: '#c87a7a',
           fontStyle: 'italic',
         }}>
@@ -169,7 +273,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         <div style={{
           fontSize: 11,
           color: '#a89878',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
         }}>
           Enter to submit · Shift+Enter for new line
         </div>
@@ -183,7 +287,8 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
             fontSize: 11,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
+            cursor: 'pointer',
           }}
         >
           Submit →
@@ -198,7 +303,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           background: '#e8dbb8',
           borderLeft: '3px solid #2F5233',
           fontSize: 13,
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           color: '#2F5233',
           fontStyle: 'italic',
         }}>
@@ -206,7 +311,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         </div>
       )}
 
-      {/* Export / Import */}
+      {/* Export / Import / CSV */}
       <div style={{
         marginTop: 40,
         paddingTop: 20,
@@ -217,12 +322,29 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           letterSpacing: '0.2em',
           color: '#8b7355',
           textTransform: 'uppercase',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           marginBottom: 12,
         }}>
-          Backup
+          Export & Backup
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '8px 20px',
+              background: '#1a1208',
+              border: 'none',
+              color: '#f2ead8',
+              fontSize: 10,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              fontFamily: 'Geist Mono',
+              cursor: 'pointer',
+            }}
+          >
+            Download CSV ↓
+          </button>
           <button
             onClick={() => exportJSON(thoughts)}
             style={{
@@ -233,7 +355,8 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
               fontSize: 10,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
+              cursor: 'pointer',
             }}
           >
             Export Backup
@@ -248,7 +371,8 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
               fontSize: 10,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
+              cursor: 'pointer',
             }}
           >
             Import Backup
@@ -260,21 +384,23 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
             style={{ display: 'none' }}
             onChange={e => {
               const file = e.target.files?.[0];
-              if (file) importJSON(file, onImport);
+              if (file) importJSONFile(file, onImport);
               e.target.value = '';
             }}
           />
         </div>
+
         <div style={{
           marginTop: 10,
           fontSize: 11,
           color: '#a89878',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           fontStyle: 'italic',
           lineHeight: 1.6,
         }}>
-          Export regularly to back up your catalog. Import restores a previous
-          backup including dates and starred thoughts.
+          Download CSV opens in Excel or Google Sheets with all your thoughts,
+          categories, courses and notes. Export Backup saves a JSON file you
+          can restore later.
         </div>
       </div>
     </div>

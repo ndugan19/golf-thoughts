@@ -6,7 +6,7 @@
 
 body {
   background-color: #F5ECD7;
-  font-family: 'Georgia', serif;
+  font-family: 'Geist Mono';
   color: #1A1208;
   min-height: 100vh;
 }
@@ -34,11 +34,11 @@ body::before {
 
 button {
   cursor: pointer;
-  font-family: 'Georgia', serif;
+  font-family: 'Geist Mono';
 }
 
 input, textarea {
-  font-family: 'Georgia', serif;
+  font-family: 'Geist Mono';
 }
 
 /* Scrollbar styling */
@@ -52,4 +52,9 @@ input, textarea {
 
 ::-webkit-scrollbar-thumb {
   background: #C8B88A;
+}
+
+html {
+  font-size: 130%;
+  zoom: 2.3;
 }

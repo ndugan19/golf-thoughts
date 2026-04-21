@@ -9,7 +9,7 @@ export default function CategoryBadge({ category }) {
       letterSpacing: '0.18em',
       textTransform: 'uppercase',
       color,
-      fontFamily: 'Georgia',
+      fontFamily: 'Geist Mono',
       borderBottom: `1px solid ${color}`,
       paddingBottom: 1,
     }}>

@@ -19,7 +19,7 @@ export default function ThoughtCard({
     }}>
       <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
 
-        {/* Star */}
+        {/* Star button */}
         <button
           onClick={() => onToggleStar(thought.id)}
           disabled={!thought.starred && !canStar}
@@ -34,22 +34,43 @@ export default function ThoughtCard({
             flexShrink: 0,
             opacity: !canStar && !thought.starred ? 0.35 : 1,
             transition: 'color 0.15s',
+            cursor: !canStar && !thought.starred ? 'not-allowed' : 'pointer',
           }}
         >
-          ★
+          &#9733;
         </button>
 
         <div style={{ flex: 1 }}>
+
           {/* Thought text */}
           <p style={{
             margin: '0 0 8px',
             fontSize: 16,
             lineHeight: 1.7,
             fontStyle: 'italic',
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
+            color: '#1a1208',
           }}>
             {thought.text}
           </p>
+
+          {/* Course and date */}
+          {thought.course && (
+            <p style={{
+              margin: '0 0 6px',
+              fontSize: 12,
+              color: '#8b7355',
+              fontFamily: 'Geist Mono',
+              fontStyle: 'italic',
+            }}>
+              &#9971; {thought.course}
+              {thought.date && (
+                <span style={{ color: '#a89878', marginLeft: 8 }}>
+                  &middot; {thought.date}
+                </span>
+              )}
+            </p>
+          )}
 
           {/* Note */}
           {thought.note && (
@@ -58,7 +79,7 @@ export default function ThoughtCard({
               fontSize: 13,
               color: '#6b5a3a',
               lineHeight: 1.6,
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
               fontStyle: 'italic',
               borderLeft: '2px solid #d4c49a',
               paddingLeft: 10,
@@ -80,7 +101,7 @@ export default function ThoughtCard({
             <span style={{
               fontSize: 10,
               color: '#a89878',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
             }}>
               {formatDateShort(thought.timestamp)}
             </span>
@@ -91,10 +112,11 @@ export default function ThoughtCard({
                 color: '#8b7355',
                 background: 'none',
                 border: 'none',
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
                 padding: 0,
                 textDecoration: 'underline',
                 textUnderlineOffset: 2,
+                cursor: 'pointer',
               }}
             >
               {thought.note ? 'Edit note' : 'Add note'}
@@ -106,10 +128,11 @@ export default function ThoughtCard({
                 color: '#c87a7a',
                 background: 'none',
                 border: 'none',
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
                 padding: 0,
                 textDecoration: 'underline',
                 textUnderlineOffset: 2,
+                cursor: 'pointer',
               }}
             >
               Delete

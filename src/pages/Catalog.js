@@ -46,7 +46,7 @@ export default function Catalog({
           color: '#8b7355',
           textTransform: 'uppercase',
           padding: '0 20px 10px',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
         }}>
           Filter
         </div>
@@ -76,7 +76,7 @@ export default function Catalog({
                   : '3px solid transparent',
                 color: active ? '#1a1208' : '#8b7355',
                 fontSize: 13,
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
                 fontStyle: active ? 'italic' : 'normal',
                 textAlign: 'left',
               }}
@@ -85,7 +85,7 @@ export default function Catalog({
               <span style={{
                 fontSize: 10,
                 color: '#a89878',
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
               }}>
                 {count || ''}
               </span>
@@ -104,7 +104,7 @@ export default function Catalog({
             letterSpacing: '0.2em',
             color: '#8b7355',
             textTransform: 'uppercase',
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
             marginBottom: 8,
           }}>
             Search
@@ -119,7 +119,7 @@ export default function Catalog({
               border: '1px solid #c8b88a',
               padding: '6px 8px',
               fontSize: 12,
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
               color: '#1a1208',
               outline: 'none',
             }}
@@ -131,7 +131,7 @@ export default function Catalog({
           padding: '16px 20px 0',
           fontSize: 10,
           color: '#a89878',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           fontStyle: 'italic',
         }}>
           ★ {starred.length}/3 starred
@@ -151,7 +151,7 @@ export default function Catalog({
             fontSize: 15,
             paddingTop: 40,
             textAlign: 'center',
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
           }}>
             No thoughts found.
           </div>

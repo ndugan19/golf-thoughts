@@ -24,9 +24,9 @@ export default function FrontPage({
           fontSize: 22,
           fontWeight: 'bold',
           fontStyle: 'italic',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
         }}>
-          Front Page
+          Focused Thoughts
         </div>
       </div>
 
@@ -42,7 +42,7 @@ export default function FrontPage({
             fontStyle: 'italic',
             fontSize: 15,
             lineHeight: 1.8,
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
             cursor: 'pointer',
           }}
         >
@@ -73,7 +73,7 @@ export default function FrontPage({
                 lineHeight: 0.8,
                 marginTop: 4,
                 fontStyle: 'italic',
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
                 flexShrink: 0,
               }}>
                 {i + 1}
@@ -84,7 +84,7 @@ export default function FrontPage({
                   fontSize: 19,
                   lineHeight: 1.7,
                   fontStyle: 'italic',
-                  fontFamily: 'Georgia',
+                  fontFamily: 'Geist Mono',
                 }}>
                   {t.text}
                 </p>
@@ -94,7 +94,7 @@ export default function FrontPage({
                     fontSize: 13,
                     color: '#6b5a3a',
                     lineHeight: 1.6,
-                    fontFamily: 'Georgia',
+                    fontFamily: 'Geist Mono',
                   }}>
                     {t.note}
                   </p>
@@ -111,7 +111,7 @@ export default function FrontPage({
                   <span style={{
                     fontSize: 10,
                     color: '#a89878',
-                    fontFamily: 'Georgia',
+                    fontFamily: 'Geist Mono',
                   }}>
                     {formatDateLong(t.timestamp)}
                   </span>
@@ -122,7 +122,7 @@ export default function FrontPage({
                       border: 'none',
                       fontSize: 11,
                       color: '#8b7355',
-                      fontFamily: 'Georgia',
+                      fontFamily: 'Geist Mono',
                       letterSpacing: '0.1em',
                       textTransform: 'uppercase',
                       padding: 0,
@@ -147,7 +147,7 @@ export default function FrontPage({
           color: '#8b7355',
           fontStyle: 'italic',
           fontSize: 13,
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           marginTop: 8,
         }}>
           {3 - starred.length} slot{3 - starred.length > 1 ? 's' : ''} remaining
@@ -171,7 +171,7 @@ export default function FrontPage({
             fontSize: 18,
             fontWeight: 'bold',
             fontStyle: 'italic',
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
           }}>
             From the Archives
           </div>
@@ -184,7 +184,7 @@ export default function FrontPage({
               fontSize: 10,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
               color: '#6b5a3a',
             }}
           >
@@ -197,7 +197,7 @@ export default function FrontPage({
             color: '#a89878',
             fontStyle: 'italic',
             fontSize: 14,
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
           }}>
             Press Shuffle to surface a thought from your catalog.
           </div>
@@ -212,7 +212,7 @@ export default function FrontPage({
               fontSize: 17,
               lineHeight: 1.7,
               fontStyle: 'italic',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
             }}>
               {randomThought.text}
             </p>
@@ -222,7 +222,7 @@ export default function FrontPage({
                 fontSize: 13,
                 color: '#6b5a3a',
                 lineHeight: 1.6,
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
               }}>
                 {randomThought.note}
               </p>
@@ -239,7 +239,7 @@ export default function FrontPage({
               <span style={{
                 fontSize: 10,
                 color: '#a89878',
-                fontFamily: 'Georgia',
+                fontFamily: 'Geist Mono',
               }}>
                 {formatDateLong(randomThought.timestamp)}
               </span>

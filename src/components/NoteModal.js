@@ -30,7 +30,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
         <p style={{
           fontSize: 15,
           fontStyle: 'italic',
-          fontFamily: 'Georgia',
+          fontFamily: 'Geist Mono',
           marginBottom: 16,
           lineHeight: 1.6,
           color: '#1a1208',
@@ -49,7 +49,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
             border: '1px solid #c8b88a',
             padding: '10px 12px',
             fontSize: 14,
-            fontFamily: 'Georgia',
+            fontFamily: 'Geist Mono',
             fontStyle: 'italic',
             color: '#1a1208',
             outline: 'none',
@@ -74,7 +74,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
               fontSize: 10,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
             }}
           >
             Cancel
@@ -89,7 +89,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
               fontSize: 10,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              fontFamily: 'Georgia',
+              fontFamily: 'Geist Mono',
             }}
           >
             Save Note
