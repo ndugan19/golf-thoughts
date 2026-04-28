@@ -137,8 +137,7 @@ export default function BirthdayBanner() {
   }
 
   function handleClose() {
-    setClosing(true);
-    setReleasing(true);                                  // trigger balloon release
+        setReleasing(true);                                  // trigger balloon release
     localStorage.setItem('birthday_dismissed', new Date().toDateString());
     setTimeout(() => setVisible(false), 2500);           // wait for balloons to float away
   }
