@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { supabase } from '../supabase';
 
 export default function Auth() {
-  const [mode, setMode]       = useState('login');
-  const [email, setEmail]     = useState('');
+  const [mode, setMode]         = useState('login');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError]     = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [message, setMessage]   = useState('');
+  const [error, setError]       = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -16,17 +16,11 @@ export default function Auth() {
     setMessage('');
 
     if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
 
     } else if (mode === 'signup') {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
       } else {
@@ -35,7 +29,9 @@ export default function Auth() {
       }
 
     } else if (mode === 'reset') {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://golf-thoughts.vercel.app',
+      });
       if (error) {
         setError(error.message);
       } else {
@@ -48,7 +44,7 @@ export default function Auth() {
 
   return (
     <div style={{
-      minHeight: '40vh',
+      minHeight: '100vh',
       background: '#F5ECD7',
       display: 'flex',
       flexDirection: 'column',
@@ -57,10 +53,7 @@ export default function Auth() {
       padding: 24,
     }}>
       {/* Masthead */}
-      <div style={{
-        textAlign: 'center',
-        marginBottom: 40,
-      }}>
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <div style={{
           fontSize: 9,
           letterSpacing: '0.3em',
@@ -94,6 +87,7 @@ export default function Auth() {
         background: '#ede3c8',
         border: '1px solid #c8b88a',
         padding: 32,
+        boxSizing: 'border-box',
       }}>
         <div style={{
           fontSize: 16,
@@ -104,12 +98,13 @@ export default function Auth() {
           color: '#1a1208',
           textAlign: 'center',
         }}>
-          {mode === 'login' && 'Sign In'}
+          {mode === 'login'  && 'Sign In'}
           {mode === 'signup' && 'Create Account'}
-          {mode === 'reset' && 'Reset Password'}
+          {mode === 'reset'  && 'Reset Password'}
         </div>
 
         <form onSubmit={handleSubmit}>
+
           {/* Email */}
           <div style={{ marginBottom: 16 }}>
             <label style={{
@@ -130,6 +125,7 @@ export default function Auth() {
               required
               style={{
                 width: '100%',
+                boxSizing: 'border-box',
                 background: '#f5ead8',
                 border: '1px solid #c8b88a',
                 padding: '10px 12px',
@@ -163,6 +159,7 @@ export default function Auth() {
                 minLength={6}
                 style={{
                   width: '100%',
+                  boxSizing: 'border-box',
                   background: '#f5ead8',
                   border: '1px solid #c8b88a',
                   padding: '10px 12px',
@@ -191,7 +188,7 @@ export default function Auth() {
             </div>
           )}
 
-          {/* Success message */}
+          {/* Success */}
           {message && (
             <div style={{
               marginBottom: 16,
@@ -225,7 +222,7 @@ export default function Auth() {
             }}
           >
             {loading ? 'Please wait...' : (
-              mode === 'login' ? 'Sign In' :
+              mode === 'login'  ? 'Sign In' :
               mode === 'signup' ? 'Create Account' :
               'Send Reset Email'
             )}

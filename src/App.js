@@ -18,13 +18,14 @@ import {
 } from './storage';
 
 export default function App() {
-  const [session, setSession]             = useState(null);
-  const [loading, setLoading]             = useState(true);
-  const [thoughts, setThoughts]           = useState([]);
-  const [view, setView]                   = useState('frontpage');
-  const [justAddedId, setJustAddedId]     = useState(null);
+  const [session, setSession]         = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [thoughts, setThoughts]       = useState([]);
+  const [view, setView]               = useState('frontpage');
+  const [justAddedId, setJustAddedId] = useState(null);
   const [randomThought, setRandomThought] = useState(null);
 
+  // Single auth listener — handles both session tracking and password recovery
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -32,8 +33,21 @@ export default function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event, session) => {
         setSession(session);
+
+        if (event === 'PASSWORD_RECOVERY') {
+          const newPassword = window.prompt('Enter your new password (min 6 characters):');
+          if (newPassword && newPassword.length >= 6) {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) {
+              alert('Error updating password: ' + error.message);
+            } else {
+              alert('Password updated successfully! Please sign in.');
+              await supabase.auth.signOut();
+            }
+          }
+        }
       }
     );
 
