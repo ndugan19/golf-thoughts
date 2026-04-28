@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const BIRTHDAY_MONTH = 3;  // 0=Jan, 1=Feb, 2=Mar, 3=Apr, 4=May, 5=Jun...
-const BIRTHDAY_DAY   = 21; // day of month — change to his actual birthday
+const BIRTHDAY_DAY   = 28; // day of month — change to his actual birthday
 
 // CHANGE TO this (only shows on his birthday)
 function isBirthday() {
