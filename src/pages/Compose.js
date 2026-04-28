@@ -3,32 +3,24 @@ import { CATEGORIES, CAT_COLORS, CAT_BG } from '../constants';
 import { exportJSON, importJSONFile } from '../storage';
 
 export default function Compose({ thoughts, onAddThought, onImport }) {
-  const [input, setInput]                       = useState('');
+  const [input, setInput]                           = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [date, setDate]                         = useState('');
-  const [course, setCourse]                     = useState('');
-  const [justAdded, setJustAdded]               = useState(false);
-  const [error, setError]                       = useState('');
-  const fileRef                                 = useRef(null);
+  const [date, setDate]                             = useState('');
+  const [course, setCourse]                         = useState('');
+  const [justAdded, setJustAdded]                   = useState(false);
+  const [error, setError]                           = useState('');
+  const fileRef                                     = useRef(null);
 
   function toggleCategory(cat) {
     setSelectedCategories(prev =>
-      prev.includes(cat)
-        ? prev.filter(c => c !== cat)
-        : [...prev, cat]
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   }
 
   function handleSubmit() {
     const trimmed = input.trim();
-    if (!trimmed) {
-      setError('Please write a thought first.');
-      return;
-    }
-    if (selectedCategories.length === 0) {
-      setError('Please select at least one category.');
-      return;
-    }
+    if (!trimmed) { setError('Please write a thought first.'); return; }
+    if (selectedCategories.length === 0) { setError('Please select at least one category.'); return; }
     setError('');
     onAddThought(trimmed, selectedCategories, date, course);
     setInput('');
@@ -48,40 +40,53 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
 
   function handleExportCSV() {
     if (thoughts.length === 0) return;
-
     const headers = ['Date', 'Course', 'Thought', 'Categories', 'Note'];
-
     const rows = thoughts.map(t => {
-      const date = new Date(t.timestamp).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
+      const d = new Date(t.timestamp).toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
       });
       return [
-        `"${t.date || date}"`,
+        `"${t.date || d}"`,
         `"${(t.course || '').replace(/"/g, '""')}"`,
         `"${t.text.replace(/"/g, '""')}"`,
         `"${t.categories.join(', ')}"`,
         `"${(t.note || '').replace(/"/g, '""')}"`,
       ].join(',');
     });
-
-    const csv = [headers.join(','), ...rows].join('\n');
+    const csv  = [headers.join(','), ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
     a.download = `golf-thoughts-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
+  const labelStyle = {
+    display: 'block',
+    fontSize: 9,
+    letterSpacing: '0.2em',
+    textTransform: 'uppercase',
+    color: '#8b7355',
+    fontFamily: 'Geist Mono',
+    marginBottom: 6,
+  };
+
+  const inputStyle = {
+    width: '100%',
+    boxSizing: 'border-box',          // key fix
+    background: '#ede3c8',
+    border: '1px solid #c8b88a',
+    padding: '10px 12px',
+    fontSize: 13,
+    fontFamily: 'Geist Mono',
+    color: '#1a1208',
+    outline: 'none',
+  };
+
   return (
-    <div style={{
-      padding: '28px 24px',
-      maxWidth: 680,
-      margin: '0 auto',
-    }}>
+    <div style={{ padding: '28px 16px', maxWidth: 680, margin: '0 auto' }}>  {/* 16px side padding on mobile */}
 
       {/* Header */}
       <div style={{
@@ -99,71 +104,30 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         </div>
       </div>
 
-      {/* Date and Course row */}
-      <div style={{
+      {/* Date and Course row — stacks on mobile */}
+      <div className="compose-row" style={{
         display: 'flex',
         gap: 16,
         marginBottom: 16,
+        flexWrap: 'wrap',             // wraps on small screens
       }}>
-        {/* Date field */}
-        <div style={{ flex: 1 }}>
-          <label style={{
-            display: 'block',
-            fontSize: 9,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: '#8b7355',
-            fontFamily: 'Geist Mono',
-            marginBottom: 6,
-          }}>
-            Date
-          </label>
+        <div className="compose-date" style={{ flex: '1 1 120px', minWidth: 0 }}>
+          <label style={labelStyle}>Date</label>
           <input
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            style={{
-              width: '100%',
-              background: '#ede3c8',
-              border: '1px solid #c8b88a',
-              padding: '10px 12px',
-              fontSize: 13,
-              fontFamily: 'Geist Mono',
-              color: '#1a1208',
-              outline: 'none',
-            }}
+            style={inputStyle}
           />
         </div>
-
-        {/* Course field */}
-        <div style={{ flex: 2 }}>
-          <label style={{
-            display: 'block',
-            fontSize: 9,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: '#8b7355',
-            fontFamily: 'Geist Mono',
-            marginBottom: 6,
-          }}>
-            Course (optional)
-          </label>
+        <div style={{ flex: '2 1 200px', minWidth: 0 }}>
+          <label style={labelStyle}>Course (optional)</label>
           <input
             type="text"
             value={course}
             onChange={e => setCourse(e.target.value)}
             placeholder="e.g. Mastick Woods"
-            style={{
-              width: '100%',
-              background: '#ede3c8',
-              border: '1px solid #c8b88a',
-              padding: '10px 12px',
-              fontSize: 13,
-              fontFamily: 'Geist Mono',
-              fontStyle: 'italic',
-              color: '#1a1208',
-              outline: 'none',
-            }}
+            style={{ ...inputStyle, fontStyle: 'italic' }}
           />
         </div>
       </div>
@@ -171,25 +135,17 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
       {/* Thought textarea */}
       <textarea
         value={input}
-        onChange={e => {
-          setInput(e.target.value);
-          setError('');
-        }}
+        onChange={e => { setInput(e.target.value); setError(''); }}
         onKeyDown={handleKeyDown}
         rows={5}
         placeholder="Write your golf thought here..."
         style={{
-          width: '100%',
-          background: '#ede3c8',
-          border: '1px solid #c8b88a',
-          padding: '16px 18px',
+          ...inputStyle,
           fontSize: 16,
-          fontFamily: 'Geist Mono',
           fontStyle: 'italic',
-          color: '#1a1208',
-          outline: 'none',
           resize: 'vertical',
           lineHeight: 1.7,
+          padding: '16px 18px',
         }}
       />
 
@@ -205,11 +161,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         }}>
           Select Categories
         </div>
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {CATEGORIES.map(cat => {
             const selected = selectedCategories.includes(cat);
             return (
@@ -217,7 +169,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
                 key={cat}
                 onClick={() => toggleCategory(cat)}
                 style={{
-                  padding: '6px 14px',
+                  padding: '8px 14px',          // taller tap target
                   background: selected ? CAT_COLORS[cat] : CAT_BG[cat],
                   border: `1px solid ${CAT_COLORS[cat]}`,
                   color: selected ? '#f5ead8' : CAT_COLORS[cat],
@@ -263,11 +215,13 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         </div>
       )}
 
-      {/* Submit row */}
+      {/* Submit row — stacks on mobile */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        flexWrap: 'wrap',             // wraps on small screens
+        gap: 12,
         marginTop: 16,
       }}>
         <div style={{
@@ -280,7 +234,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         <button
           onClick={handleSubmit}
           style={{
-            padding: '10px 28px',
+            padding: '12px 28px',     // taller tap target
             background: '#1a1208',
             border: 'none',
             color: '#f2ead8',
@@ -289,7 +243,9 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
             textTransform: 'uppercase',
             fontFamily: 'Geist Mono',
             cursor: 'pointer',
+            width: '100%',            // full width on mobile, overridden below
           }}
+          className="compose-submit"
         >
           Submit →
         </button>
@@ -332,7 +288,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           <button
             onClick={handleExportCSV}
             style={{
-              padding: '8px 20px',
+              padding: '10px 20px',   // taller tap target
               background: '#1a1208',
               border: 'none',
               color: '#f2ead8',
@@ -348,7 +304,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           <button
             onClick={() => exportJSON(thoughts)}
             style={{
-              padding: '8px 20px',
+              padding: '10px 20px',
               background: 'none',
               border: '1px solid #8b7355',
               color: '#6b5a3a',
@@ -364,7 +320,7 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
           <button
             onClick={() => fileRef.current?.click()}
             style={{
-              padding: '8px 20px',
+              padding: '10px 20px',
               background: 'none',
               border: '1px solid #8b7355',
               color: '#6b5a3a',

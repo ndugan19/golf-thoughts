@@ -15,10 +15,11 @@ export default function NoteModal({ thought, onSave, onClose }) {
       inset: 0,
       background: 'rgba(26,18,8,0.5)',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',        // changed: avoids keyboard push
       justifyContent: 'center',
       zIndex: 1000,
-      padding: 24,
+      padding: '60px 16px 24px',       // changed: more top room, less side padding
+      overflowY: 'auto',               // added: scroll if keyboard shrinks space
     }}>
       <div style={{
         background: '#ede3c8',
@@ -26,6 +27,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
         padding: 28,
         width: '100%',
         maxWidth: 480,
+        boxSizing: 'border-box',       // added
       }}>
         <p style={{
           fontSize: 15,
@@ -45,6 +47,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
           placeholder="Add a note or elaboration..."
           style={{
             width: '100%',
+            boxSizing: 'border-box',   // added: prevents overflow on mobile
             background: '#f5ead8',
             border: '1px solid #c8b88a',
             padding: '10px 12px',
@@ -67,7 +70,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
           <button
             onClick={onClose}
             style={{
-              padding: '7px 18px',
+              padding: '10px 18px',    // changed: taller tap target
               background: 'none',
               border: '1px solid #c8b88a',
               color: '#8b7355',
@@ -75,6 +78,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
               fontFamily: 'Geist Mono',
+              cursor: 'pointer',
             }}
           >
             Cancel
@@ -82,7 +86,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
           <button
             onClick={() => onSave(thought.id, note)}
             style={{
-              padding: '7px 18px',
+              padding: '10px 18px',    // changed: taller tap target
               background: '#1a1208',
               border: 'none',
               color: '#f2ead8',
@@ -90,6 +94,7 @@ export default function NoteModal({ thought, onSave, onClose }) {
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
               fontFamily: 'Geist Mono',
+              cursor: 'pointer',
             }}
           >
             Save Note

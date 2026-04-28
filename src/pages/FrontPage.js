@@ -12,7 +12,7 @@ export default function FrontPage({
   const starred = thoughts.filter(t => t.starred);
 
   return (
-    <div style={{ padding: '28px 24px', maxWidth: 780, margin: '0 auto' }}>
+    <div style={{ padding: '28px 16px', maxWidth: 780, margin: '0 auto' }}>
 
       {/* Header */}
       <div style={{
@@ -36,7 +36,7 @@ export default function FrontPage({
           onClick={onGoToCatalog}
           style={{
             border: '1px dashed #c8b88a',
-            padding: '40px 32px',
+            padding: '40px 24px',
             textAlign: 'center',
             color: '#8b7355',
             fontStyle: 'italic',
@@ -57,17 +57,13 @@ export default function FrontPage({
           <div key={t.id} style={{
             marginBottom: 20,
             paddingBottom: 20,
-            borderBottom: i < starred.length - 1
-              ? '1px solid #d4c49a'
-              : 'none',
+            borderBottom: i < starred.length - 1 ? '1px solid #d4c49a' : 'none',
           }}>
-            <div style={{
-              display: 'flex',
-              gap: 14,
-              alignItems: 'flex-start',
-            }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+
+              {/* Number glyph — smaller on mobile */}
               <div style={{
-                fontSize: 48,
+                fontSize: 'clamp(28px, 8vw, 48px)',   // scales with screen
                 fontWeight: 900,
                 color: '#d4c49a',
                 lineHeight: 0.8,
@@ -78,13 +74,15 @@ export default function FrontPage({
               }}>
                 {i + 1}
               </div>
-              <div style={{ flex: 1 }}>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                   margin: '0 0 8px',
-                  fontSize: 19,
+                  fontSize: 'clamp(15px, 4vw, 19px)',  // scales with screen
                   lineHeight: 1.7,
                   fontStyle: 'italic',
                   fontFamily: 'Geist Mono',
+                  wordBreak: 'break-word',
                 }}>
                   {t.text}
                 </p>
@@ -95,6 +93,7 @@ export default function FrontPage({
                     color: '#6b5a3a',
                     lineHeight: 1.6,
                     fontFamily: 'Geist Mono',
+                    wordBreak: 'break-word',
                   }}>
                     {t.note}
                   </p>
@@ -125,9 +124,10 @@ export default function FrontPage({
                       fontFamily: 'Geist Mono',
                       letterSpacing: '0.1em',
                       textTransform: 'uppercase',
-                      padding: 0,
+                      padding: '4px 0',          // taller tap target
                       textDecoration: 'underline',
                       textUnderlineOffset: 2,
+                      cursor: 'pointer',
                     }}
                   >
                     Unstar
@@ -161,10 +161,12 @@ export default function FrontPage({
         borderTop: '2px solid #1a1208',
         paddingTop: 20,
       }}>
+        {/* Section header — wraps on mobile */}
         <div style={{
           display: 'flex',
           alignItems: 'baseline',
-          gap: 16,
+          flexWrap: 'wrap',
+          gap: 12,
           marginBottom: 16,
         }}>
           <div style={{
@@ -180,12 +182,13 @@ export default function FrontPage({
             style={{
               background: 'none',
               border: '1px solid #8b7355',
-              padding: '3px 12px',
+              padding: '6px 14px',       // taller tap target
               fontSize: 10,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
               fontFamily: 'Geist Mono',
               color: '#6b5a3a',
+              cursor: 'pointer',
             }}
           >
             Shuffle ↻
@@ -204,15 +207,16 @@ export default function FrontPage({
         ) : (
           <div style={{
             background: '#e8dbb8',
-            padding: '20px 24px',
+            padding: '20px 20px',
             borderLeft: '4px solid #8B4513',
           }}>
             <p style={{
               margin: '0 0 10px',
-              fontSize: 17,
+              fontSize: 'clamp(14px, 4vw, 17px)',   // scales with screen
               lineHeight: 1.7,
               fontStyle: 'italic',
               fontFamily: 'Geist Mono',
+              wordBreak: 'break-word',
             }}>
               {randomThought.text}
             </p>
@@ -223,6 +227,7 @@ export default function FrontPage({
                 color: '#6b5a3a',
                 lineHeight: 1.6,
                 fontFamily: 'Geist Mono',
+                wordBreak: 'break-word',
               }}>
                 {randomThought.note}
               </p>

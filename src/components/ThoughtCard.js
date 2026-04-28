@@ -29,7 +29,7 @@ export default function ThoughtCard({
             border: 'none',
             fontSize: 20,
             color: thought.starred ? '#c8860a' : '#d4c49a',
-            padding: '2px 0',
+            padding: '4px 6px',              // changed: wider tap target
             lineHeight: 1,
             flexShrink: 0,
             opacity: !canStar && !thought.starred ? 0.35 : 1,
@@ -40,7 +40,7 @@ export default function ThoughtCard({
           &#9733;
         </button>
 
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>  {/* added minWidth:0 — prevents text overflow */}
 
           {/* Thought text */}
           <p style={{
@@ -50,6 +50,7 @@ export default function ThoughtCard({
             fontStyle: 'italic',
             fontFamily: 'Geist Mono',
             color: '#1a1208',
+            wordBreak: 'break-word',         // added: long words won't overflow
           }}>
             {thought.text}
           </p>
@@ -62,6 +63,7 @@ export default function ThoughtCard({
               color: '#8b7355',
               fontFamily: 'Geist Mono',
               fontStyle: 'italic',
+              wordBreak: 'break-word',       // added
             }}>
               &#9971; {thought.course}
               {thought.date && (
@@ -83,6 +85,7 @@ export default function ThoughtCard({
               fontStyle: 'italic',
               borderLeft: '2px solid #d4c49a',
               paddingLeft: 10,
+              wordBreak: 'break-word',       // added
             }}>
               {thought.note}
             </p>
@@ -113,7 +116,7 @@ export default function ThoughtCard({
                 background: 'none',
                 border: 'none',
                 fontFamily: 'Geist Mono',
-                padding: 0,
+                padding: '4px 0',            // changed: taller tap target
                 textDecoration: 'underline',
                 textUnderlineOffset: 2,
                 cursor: 'pointer',
@@ -129,7 +132,7 @@ export default function ThoughtCard({
                 background: 'none',
                 border: 'none',
                 fontFamily: 'Geist Mono',
-                padding: 0,
+                padding: '4px 0',            // changed: taller tap target
                 textDecoration: 'underline',
                 textUnderlineOffset: 2,
                 cursor: 'pointer',

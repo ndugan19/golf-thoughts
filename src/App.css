@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+/* Catalog */
+@media (max-width: 640px) {
+  .mobile-filter-bar { display: flex !important; }
+  .mobile-drawer     { display: block !important; }
+  .desktop-sidebar   { display: none !important; }
+}
+@media (min-width: 641px) {
+  .mobile-filter-bar { display: none !important; }
+  .mobile-drawer     { display: none !important; }
+  .desktop-sidebar   { display: flex !important; }
+}
+
+/* Compose */
+@media (min-width: 641px) {
+  .compose-submit { width: auto !important; }
+}
+
+/* CourseMap */
+@media (max-width: 640px) {
+  .course-map-container { height: 220px !important; }
+}

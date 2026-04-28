@@ -5,12 +5,11 @@ import 'leaflet/dist/leaflet.css';
 import CategoryBadge from '../components/CategoryBadge';
 import { formatDateShort } from '../utils';
 
-// Fix default marker icons broken by webpack
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  iconUrl:       require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl:     require('leaflet/dist/images/marker-shadow.png'),
 });
 
 function createGolfIcon(count) {
@@ -24,8 +23,8 @@ function createGolfIcon(count) {
         ${count > 1 ? `<div style="position:absolute;top:-6px;right:-6px;background:#1a1208;color:#f5ead8;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-family:Geist Mono;font-weight:bold;">${count}</div>` : ''}
       </div>
     `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
+    iconSize:    [36, 36],
+    iconAnchor:  [18, 36],
     popupAnchor: [0, -36],
   });
 }
@@ -54,20 +53,21 @@ export default function CourseMap({ thoughts }) {
   const thoughtsWithoutCourse = thoughts.filter(
     t => !t.course || t.course.trim() === ''
   );
-
   const thoughtsWithCourse = thoughts.filter(
     t => t.course && t.course.trim() !== ''
   );
 
   const center = useMemo(() => {
     if (courseGroups.length === 0) return [39, -98];
-    const avgLat = courseGroups.reduce((s, g) => s + g.latitude, 0) / courseGroups.length;
+    const avgLat = courseGroups.reduce((s, g) => s + g.latitude,  0) / courseGroups.length;
     const avgLng = courseGroups.reduce((s, g) => s + g.longitude, 0) / courseGroups.length;
     return [avgLat, avgLng];
   }, [courseGroups]);
 
   return (
-    <div style={{ padding: '28px 24px', maxWidth: 1000, margin: '0 auto' }}>
+    <div style={{ padding: '28px 16px', maxWidth: 1000, margin: '0 auto' }}>
+
+      {/* Header */}
       <div style={{
         borderBottom: '2px solid #1a1208',
         marginBottom: 24,
@@ -99,7 +99,7 @@ export default function CourseMap({ thoughts }) {
       {courseGroups.length === 0 ? (
         <div style={{
           border: '1px dashed #c8b88a',
-          padding: '40px 32px',
+          padding: '40px 24px',
           textAlign: 'center',
           color: '#8b7355',
           fontStyle: 'italic',
@@ -115,6 +115,7 @@ export default function CourseMap({ thoughts }) {
         </div>
       ) : (
         <>
+          {/* Map — taller on desktop, shorter on mobile via CSS */}
           <div style={{
             border: '2px solid #c8b88a',
             overflow: 'hidden',
@@ -123,24 +124,23 @@ export default function CourseMap({ thoughts }) {
             <MapContainer
               center={center}
               zoom={courseGroups.length === 1 ? 12 : 4}
-              style={{ width: '100%', height: 300 }}
+              style={{ width: '100%', height: 300 }}   // overridden to 220px on mobile via CSS
               scrollWheelZoom={true}
+              className="course-map-container"
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-                 url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-               />
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              />
               {courseGroups.map((group, i) => (
                 <Marker
                   key={i}
                   position={[group.latitude, group.longitude]}
                   icon={createGolfIcon(group.thoughts.length)}
-                  eventHandlers={{
-                    click: () => setSelectedCourse(group),
-                  }}
+                  eventHandlers={{ click: () => setSelectedCourse(group) }}
                 >
-                  <Popup maxWidth={320}>
-                    <div style={{ fontFamily: 'Geist Mono', maxHeight: 280, overflowY: 'auto' }}>
+                  <Popup maxWidth={280}>   {/* narrower on mobile */}
+                    <div style={{ fontFamily: 'Geist Mono', maxHeight: 240, overflowY: 'auto' }}>
                       <div style={{
                         fontSize: 14,
                         fontWeight: 'bold',
@@ -163,7 +163,7 @@ export default function CourseMap({ thoughts }) {
                         }}>
                           <p style={{
                             margin: '0 0 5px',
-                            fontSize: 13,
+                            fontSize: 12,
                             fontStyle: 'italic',
                             color: '#1a1208',
                             lineHeight: 1.5,
@@ -187,6 +187,7 @@ export default function CourseMap({ thoughts }) {
             </MapContainer>
           </div>
 
+          {/* Course cards grid */}
           <div style={{ borderTop: '2px solid #1a1208', paddingTop: 20 }}>
             <div style={{
               fontSize: 16,
@@ -199,17 +200,23 @@ export default function CourseMap({ thoughts }) {
             </div>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',  // collapses to 1 col on small screens
               gap: 16,
             }}>
               {courseGroups.map((group, i) => (
-                <div key={i} style={{
-                  background: '#ede3c8',
-                  border: selectedCourse?.name === group.name ? '1px solid #1a1208' : '1px solid #d4c49a',
-                  padding: '16px 18px',
-                  cursor: 'pointer',
-                  transition: 'border 0.15s',
-                }}>
+                <div
+                  key={i}
+                  onClick={() => setSelectedCourse(group)}
+                  style={{
+                    background: '#ede3c8',
+                    border: selectedCourse?.name === group.name
+                      ? '1px solid #1a1208'
+                      : '1px solid #d4c49a',
+                    padding: '16px 18px',
+                    cursor: 'pointer',
+                    transition: 'border 0.15s',
+                  }}
+                >
                   <div style={{
                     fontSize: 14,
                     fontWeight: 'bold',
@@ -250,6 +257,7 @@ export default function CourseMap({ thoughts }) {
           fontFamily: 'Geist Mono',
           color: '#8b7355',
           fontStyle: 'italic',
+          boxSizing: 'border-box',
         }}>
           {thoughtsWithoutCourse.length} thought{thoughtsWithoutCourse.length !== 1 ? 's' : ''} logged without a course — add a course when logging to see them on the map.
         </div>
