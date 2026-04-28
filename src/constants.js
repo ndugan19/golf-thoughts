@@ -18,11 +18,11 @@ export const CAT_COLORS = {
 
 export const CAT_BG = {
   Mechanics:  '#f5ede4',
-  Mental:     '#e8f0e9',
+  Mental:     '#f5ebe6',
   Routine:    '#e4ecf5',
-  Practice:   '#f0e8f0',
-  'Short Game': '#f2e8e4',
-  'Long Game':  '#e4f0e4',
+  Practice:   '#f9e8f9',
+  'Short Game': '#e4f5e4',
+  'Long Game':  '#e6f5e6',
 };
 
 export const STORAGE_KEY = 'golf_thoughts_v3';
