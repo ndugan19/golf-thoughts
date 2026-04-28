@@ -22,7 +22,7 @@ export const CAT_BG = {
   Routine:    '#e4ecf5',
   Practice:   '#f9e8f9',
   'Short Game': '#e9f6e9',
-  'Long Game':  '#e1f2e1',
+  'Long Game':  '#cad9ca',
 };
 
 export const STORAGE_KEY = 'golf_thoughts_v3';
