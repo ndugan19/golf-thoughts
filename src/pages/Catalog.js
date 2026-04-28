@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CATEGORIES, CAT_COLORS } from '../constants';
 import ThoughtCard from '../components/ThoughtCard';
 import NoteModal from '../components/NoteModal';
+import { useWindowSize } from '../hooks/useWindowSize';
 
 export default function Catalog({
   thoughts,
@@ -14,6 +15,7 @@ export default function Catalog({
   const [search, setSearch]                 = useState('');
   const [noteThought, setNoteThought]       = useState(null);
   const [sidebarOpen, setSidebarOpen]       = useState(false);
+  const { isMobile }                        = useWindowSize();
 
   const starred  = thoughts.filter(t => t.starred);
 
@@ -30,7 +32,6 @@ export default function Catalog({
     setNoteThought(null);
   }
 
-  /* ── shared sidebar content ── */
   const SidebarContent = () => (
     <>
       <div style={{
@@ -131,116 +132,143 @@ export default function Catalog({
   return (
     <div style={{ minHeight: 'calc(100vh - 120px)' }}>
 
-      {/* ── Mobile filter bar ── */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '10px 16px',
-        background: '#ede3c8',
-        borderBottom: '1px solid #d4c49a',
-      }}
-        className="mobile-filter-bar"
-      >
-        {/* Hamburger toggle */}
-        <button
-          onClick={() => setSidebarOpen(o => !o)}
-          style={{
-            background: 'none',
-            border: '1px solid #c8b88a',
-            padding: '5px 10px',
-            fontFamily: 'Geist Mono',
-            fontSize: 12,
-            color: '#8b7355',
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >
-          ☰ Filter
-        </button>
-
-        {/* Active category pill */}
-        <span style={{
-          fontSize: 11,
-          fontFamily: 'Geist Mono',
-          color: '#1a1208',
-          fontStyle: 'italic',
+      {/* Mobile filter bar — only on mobile */}
+      {isMobile && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '10px 16px',
+          background: '#ede3c8',
+          borderBottom: '1px solid #d4c49a',
         }}>
-          {activeCategory}
-        </span>
+          <button
+            onClick={() => setSidebarOpen(o => !o)}
+            style={{
+              background: 'none',
+              border: '1px solid #c8b88a',
+              padding: '5px 10px',
+              fontFamily: 'Geist Mono',
+              fontSize: 12,
+              color: '#8b7355',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            ☰ Filter
+          </button>
 
-        {/* Inline search */}
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search..."
-          style={{
-            flex: 1,
-            background: '#f2ead8',
-            border: '1px solid #c8b88a',
-            padding: '5px 8px',
-            fontSize: 12,
+          <span style={{
+            fontSize: 11,
             fontFamily: 'Geist Mono',
             color: '#1a1208',
-            outline: 'none',
-            minWidth: 0,
-          }}
-        />
-      </div>
+            fontStyle: 'italic',
+          }}>
+            {activeCategory}
+          </span>
 
-      {/* ── Mobile drawer overlay ── */}
-      {sidebarOpen && (
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search..."
+            style={{
+              flex: 1,
+              background: '#f2ead8',
+              border: '1px solid #c8b88a',
+              padding: '5px 8px',
+              fontSize: 12,
+              fontFamily: 'Geist Mono',
+              color: '#1a1208',
+              outline: 'none',
+              minWidth: 0,
+            }}
+          />
+        </div>
+      )}
+
+      {/* Mobile drawer overlay — only on mobile */}
+      {isMobile && sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
           style={{
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.35)',
-            zIndex: 40,
+            zIndex: 110,                    // above masthead (100)
           }}
         />
       )}
 
-      {/* ── Mobile drawer panel ── */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: sidebarOpen ? 0 : '-260px',
-        width: 240,
-        height: '100%',
-        background: '#ede3c8',
-        borderRight: '1px solid #d4c49a',
-        padding: '24px 0',
-        zIndex: 50,
-        overflowY: 'auto',
-        transition: 'left 0.25s ease',
-      }}
-        className="mobile-drawer"
-      >
-        <SidebarContent />
-      </div>
-
-      {/* ── Desktop layout ── */}
-      <div style={{ display: 'flex' }} className="desktop-catalog">
-
-        {/* Desktop sidebar */}
+      {/* Mobile drawer panel — only on mobile */}
+      {isMobile && (
         <div style={{
-          width: 190,
-          borderRight: '1px solid #d4c49a',
+          position: 'fixed',
+          top: 0,
+          left: sidebarOpen ? 0 : '-260px',
+          width: 240,
+          height: '100%',
           background: '#ede3c8',
-          padding: '24px 0',
-          flexShrink: 0,
-        }}
-          className="desktop-sidebar"
-        >
+          borderRight: '1px solid #d4c49a',
+          paddingTop: 80,                   // clears the masthead height
+          paddingBottom: 24,
+          zIndex: 120,                      // above overlay
+          overflowY: 'auto',
+          transition: 'left 0.25s ease',
+        }}>
           <SidebarContent />
         </div>
+      )}
 
-        {/* Thought list */}
+      {/* Desktop layout — only on desktop */}
+      {!isMobile && (
+        <div style={{ display: 'flex' }}>
+          <div style={{
+            width: 190,
+            borderRight: '1px solid #d4c49a',
+            background: '#ede3c8',
+            padding: '24px 0',
+            flexShrink: 0,
+          }}>
+            <SidebarContent />
+          </div>
+
+          <div style={{
+            flex: 1,
+            padding: '24px 32px',
+            overflowY: 'auto',
+          }}>
+            {filtered.length === 0 ? (
+              <div style={{
+                color: '#a89878',
+                fontStyle: 'italic',
+                fontSize: 15,
+                paddingTop: 40,
+                textAlign: 'center',
+                fontFamily: 'Geist Mono',
+              }}>
+                No thoughts found.
+              </div>
+            ) : (
+              filtered.map(t => (
+                <ThoughtCard
+                  key={t.id}
+                  thought={t}
+                  isHighlighted={justAddedId === t.id}
+                  canStar={starred.length < 3}
+                  onToggleStar={onToggleStar}
+                  onDelete={onDelete}
+                  onOpenNote={setNoteThought}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile thought list — only on mobile */}
+      {isMobile && (
         <div style={{
-          flex: 1,
-          padding: '24px 32px',
-          overflowY: 'auto',
+          padding: '16px 16px',
         }}>
           {filtered.length === 0 ? (
             <div style={{
@@ -267,9 +295,8 @@ export default function Catalog({
             ))
           )}
         </div>
-      </div>
+      )}
 
-      {/* Note modal */}
       <NoteModal
         thought={noteThought}
         onSave={handleSaveNote}

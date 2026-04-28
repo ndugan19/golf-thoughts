@@ -5,16 +5,9 @@ import { useWindowSize } from '../hooks/useWindowSize';
 const views = [
   { id: 'frontpage', label: 'Front Page' },
   { id: 'catalog',   label: 'Catalog' },
-  { id: 'compose',   label: 'Log a Thought' },
+  { id: 'compose',   label: 'Log' },
   { id: 'map',       label: 'Courses' },
 ];
-
-const mobileIcons = {
-  frontpage: '📰',
-  catalog:   '📋',
-  compose:   '✏️',
-  map:       '🗺️',
-};
 
 export default function Masthead({
   currentView,
@@ -45,7 +38,6 @@ export default function Masthead({
           alignItems: 'center',
           gap: 10,
         }}>
-          {/* Hide email on mobile to save space */}
           {!isMobile && (
             <span style={{
               fontSize: 10,
@@ -136,7 +128,7 @@ export default function Masthead({
         </div>
       )}
 
-      {/* Mobile nav — icon tab bar */}
+      {/* Mobile nav — text only, no emojis */}
       {isMobile && (
         <div style={{
           display: 'flex',
@@ -150,12 +142,12 @@ export default function Masthead({
               onClick={() => onViewChange(v.id)}
               style={{
                 flex: 1,
-                padding: '7px 2px',
+                padding: '8px 2px',
                 background: currentView === v.id ? '#e0d4b0' : 'none',
                 border: 'none',
                 borderLeft: i > 0 ? '1px solid #c8b88a' : 'none',
                 color: currentView === v.id ? '#1a1208' : '#8b7355',
-                fontSize: 8,
+                fontSize: 9,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 fontFamily: 'Geist Mono',
@@ -164,9 +156,6 @@ export default function Masthead({
                 lineHeight: 1.4,
               }}
             >
-              <div style={{ fontSize: 15, marginBottom: 2 }}>
-                {mobileIcons[v.id]}
-              </div>
               {v.label}
             </button>
           ))}
