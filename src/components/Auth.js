@@ -2,18 +2,27 @@ import React, { useState } from 'react';
 import { supabase } from '../supabase';
 
 export default function Auth() {
-  const [mode, setMode]         = useState('login');
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [message, setMessage]   = useState('');
-  const [error, setError]       = useState('');
+  const [mode, setMode]               = useState('login');
+  const [email, setEmail]             = useState('');
+  const [password, setPassword]       = useState('');
+  const [confirm, setConfirm]         = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm]   = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [message, setMessage]         = useState('');
+  const [error, setError]             = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     setError('');
     setMessage('');
+
+    if (mode === 'signup' && password !== confirm) {
+      setError('Passwords do not match.');
+      setLoading(false);
+      return;
+    }
 
     if (mode === 'login') {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -42,19 +51,66 @@ export default function Auth() {
     setLoading(false);
   }
 
-  return (
-  <div style={{
-    minHeight: 'max(100vh, 100dvh)',
-    background: '#F5ECD7',
+  // Eye icons
+  const EyeOpen = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="#8b7355" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+
+  const EyeClosed = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="#8b7355" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  );
+
+  const passwordInputWrapper = {
+    position: 'relative',
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start',   // changed from center
-    paddingTop: 'max(40px, 8vh)',   // responsive top padding
-    paddingBottom: '24px',
-    paddingLeft: '16px',
-    paddingRight: '16px',
-  }}>
+  };
+
+  const passwordInput = {
+    width: '100%',
+    boxSizing: 'border-box',
+    background: '#f5ead8',
+    border: '1px solid #c8b88a',
+    padding: '10px 40px 10px 12px',
+    fontSize: 14,
+    fontFamily: 'Geist Mono',
+    color: '#1a1208',
+    outline: 'none',
+  };
+
+  const eyeButton = {
+    position: 'absolute',
+    right: 10,
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+  };
+
+  return (
+    <div style={{
+      minHeight: 'max(100vh, 100dvh)',
+      background: '#F5ECD7',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      paddingTop: 'max(40px, 8vh)',
+      paddingBottom: '24px',
+      paddingLeft: '16px',
+      paddingRight: '16px',
+    }}>
       {/* Masthead */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <div style={{
@@ -142,7 +198,7 @@ export default function Auth() {
 
           {/* Password */}
           {mode !== 'reset' && (
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: mode === 'signup' ? 16 : 24 }}>
               <label style={{
                 display: 'block',
                 fontSize: 9,
@@ -154,24 +210,72 @@ export default function Auth() {
               }}>
                 Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={6}
-                style={{
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  background: '#f5ead8',
-                  border: '1px solid #c8b88a',
-                  padding: '10px 12px',
-                  fontSize: 14,
+              <div style={passwordInputWrapper}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  style={passwordInput}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  style={eyeButton}
+                >
+                  {showPassword ? <EyeClosed /> : <EyeOpen />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Confirm Password — signup only */}
+          {mode === 'signup' && (
+            <div style={{ marginBottom: 24 }}>
+              <label style={{
+                display: 'block',
+                fontSize: 9,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: '#8b7355',
+                fontFamily: 'Geist Mono',
+                marginBottom: 6,
+              }}>
+                Confirm Password
+              </label>
+              <div style={passwordInputWrapper}>
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  required
+                  minLength={6}
+                  style={{
+                    ...passwordInput,
+                    borderColor: confirm && confirm !== password ? '#c87a7a' : '#c8b88a',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(p => !p)}
+                  style={eyeButton}
+                >
+                  {showConfirm ? <EyeClosed /> : <EyeOpen />}
+                </button>
+              </div>
+              {/* Inline mismatch hint */}
+              {confirm && confirm !== password && (
+                <div style={{
+                  fontSize: 10,
                   fontFamily: 'Geist Mono',
-                  color: '#1a1208',
-                  outline: 'none',
-                }}
-              />
+                  color: '#c87a7a',
+                  fontStyle: 'italic',
+                  marginTop: 4,
+                }}>
+                  Passwords don't match
+                </div>
+              )}
             </div>
           )}
 
@@ -243,7 +347,7 @@ export default function Auth() {
           {mode === 'login' && (
             <>
               <button
-                onClick={() => { setMode('signup'); setError(''); setMessage(''); }}
+                onClick={() => { setMode('signup'); setError(''); setMessage(''); setConfirm(''); }}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -276,7 +380,7 @@ export default function Auth() {
           )}
           {(mode === 'signup' || mode === 'reset') && (
             <button
-              onClick={() => { setMode('login'); setError(''); setMessage(''); }}
+              onClick={() => { setMode('login'); setError(''); setMessage(''); setConfirm(''); }}
               style={{
                 background: 'none',
                 border: 'none',
