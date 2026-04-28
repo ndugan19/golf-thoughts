@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { getTodayString } from '../utils';
 import { useWindowSize } from '../hooks/useWindowSize';
 
