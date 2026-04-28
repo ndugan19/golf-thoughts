@@ -27,7 +27,7 @@ export default function ThoughtCard({
           style={{
             background: 'none',
             border: 'none',
-            fontSize: 20,
+            fontSize: 25,
             color: thought.starred ? '#c8860a' : '#d4c49a',
             padding: '4px 6px',              // changed: wider tap target
             lineHeight: 1,

@@ -9,10 +9,10 @@ export const CATEGORIES = [
 
 export const CAT_COLORS = {
   Mechanics:  '#8B4513',
-  Mental:     '#2F5233',
+  Mental:     '#5C4033',
   Routine:    '#1a3a5c',
   Practice:   '#6b3a6b',
-  'Short Game': '#5C4033',
+  'Short Game': '#4da74d',
   'Long Game':  '#1A4A1A',
 };
 
