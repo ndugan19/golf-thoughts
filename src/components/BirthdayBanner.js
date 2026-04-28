@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const BIRTHDAY_MONTH = 3;  // 3 = April (0-indexed)
+const BIRTHDAY_MONTH = 3;
 const BIRTHDAY_DAY   = 28;
 
 function isBirthday() {
@@ -11,13 +11,16 @@ function isBirthday() {
   );
 }
 
-function Balloon({ color, x, delay, duration, size }) {
+function Balloon({ color, x, delay, duration, size, releasing }) {
   return (
     <div style={{
       position: 'absolute',
       left: x,
       bottom: '-120px',
-      animation: `floatUp ${duration}s ${delay}s ease-in infinite`,
+      animation: releasing
+        ? `floatAway 2.5s ease-in forwards`           // fast release on close
+        : `floatUp ${duration}s ${delay}s ease-in infinite`,
+      animationDelay: releasing ? `${Math.random() * 0.4}s` : `${delay}s`,
       pointerEvents: 'none',
     }}>
       <div style={{
@@ -30,31 +33,25 @@ function Balloon({ color, x, delay, duration, size }) {
       }}>
         <div style={{
           position: 'absolute',
-          top: '15%',
-          left: '20%',
-          width: '25%',
-          height: '20%',
+          top: '15%', left: '20%',
+          width: '25%', height: '20%',
           background: 'rgba(255,255,255,0.4)',
           borderRadius: '50%',
           transform: 'rotate(-30deg)',
         }} />
         <div style={{
           position: 'absolute',
-          bottom: -6,
-          left: '50%',
+          bottom: -6, left: '50%',
           transform: 'translateX(-50%)',
-          width: 8,
-          height: 8,
+          width: 8, height: 8,
           background: color,
           borderRadius: '50%',
         }} />
       </div>
       <div style={{
-        width: 1,
-        height: 60,
+        width: 1, height: 60,
         background: 'rgba(100,80,50,0.4)',
-        margin: '0 auto',
-        marginTop: 4,
+        margin: '0 auto', marginTop: 4,
       }} />
     </div>
   );
@@ -72,8 +69,7 @@ function ConfettiPiece({ left, delay, duration, color, size, shape }) {
   return (
     <div style={{
       position: 'absolute',
-      top: '-20px',
-      left,
+      top: '-20px', left,
       width: shape === 'circle' ? size : size * 1.5,
       height: size,
       background: color,
@@ -85,9 +81,10 @@ function ConfettiPiece({ left, delay, duration, color, size, shape }) {
 }
 
 export default function BirthdayBanner() {
-  const [visible, setVisible]   = useState(false);
-  const [closing, setClosing]   = useState(false);
-  const [elements, setElements] = useState({ balloons: [], confetti: [] });
+  const [visible, setVisible]       = useState(false);
+  const [closing, setClosing]       = useState(false);
+  const [releasing, setReleasing]   = useState(false);   // balloon release state
+  const [elements, setElements]     = useState({ balloons: [], confetti: [] });
 
   useEffect(() => {
     if (!isBirthday()) return;
@@ -142,8 +139,9 @@ export default function BirthdayBanner() {
 
   function handleClose() {
     setClosing(true);
+    setReleasing(true);                                  // trigger balloon release
     localStorage.setItem('birthday_dismissed', new Date().toDateString());
-    setTimeout(() => setVisible(false), 700);
+    setTimeout(() => setVisible(false), 2500);           // wait for balloons to float away
   }
 
   if (!visible) return null;
@@ -155,6 +153,10 @@ export default function BirthdayBanner() {
           0%   { transform: translateY(0) rotate(-3deg); opacity: 1; }
           50%  { transform: translateY(-60vh) rotate(3deg); opacity: 0.9; }
           100% { transform: translateY(-110vh) rotate(-2deg); opacity: 0; }
+        }
+        @keyframes floatAway {
+          0%   { transform: translateY(0) rotate(-3deg); opacity: 1; }
+          100% { transform: translateY(-130vh) rotate(8deg); opacity: 0; }
         }
         @keyframes confettiFall {
           0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
@@ -194,12 +196,14 @@ export default function BirthdayBanner() {
         }
       `}</style>
 
-      {/* Balloons */}
+      {/* Balloons — stay visible during release */}
       <div style={{
         position: 'fixed', inset: 0,
         zIndex: 997, pointerEvents: 'none', overflow: 'hidden',
       }}>
-        {elements.balloons.map(b => <Balloon key={b.id} {...b} />)}
+        {elements.balloons.map(b => (
+          <Balloon key={b.id} {...b} releasing={releasing} />
+        ))}
       </div>
 
       {/* Confetti */}
@@ -210,192 +214,181 @@ export default function BirthdayBanner() {
         {elements.confetti.map(c => <ConfettiPiece key={c.id} {...c} />)}
       </div>
 
-      {/* Overlay */}
-      <div
-        onClick={handleClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(10,6,2,0.72)',
-          zIndex: 999,
-          animation: closing ? 'fadeOut 0.7s ease forwards' : 'fadeIn 0.4s ease forwards',
-          // centers the card
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '16px',            // breathing room on mobile
-        }}
-      >
-        {/* Card */}
+      {/* Overlay — fades out on close */}
+      {!releasing && (
         <div
-          onClick={e => e.stopPropagation()}
+          onClick={handleClose}
           style={{
-            background: 'linear-gradient(160deg, #fff9f0 0%, #ede3c8 50%, #e8dbb8 100%)',
-            border: '4px double #1a1208',
-            borderRadius: 4,
-            padding: 'clamp(24px, 6vw, 44px) clamp(20px, 6vw, 52px)',  // scales down on mobile
-            maxWidth: 520,
-            width: '100%',
-            textAlign: 'center',
-            animation: closing ? 'popOut 0.7s ease forwards' : 'popIn 0.5s ease forwards',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-            position: 'relative',
-            maxHeight: '90vh',        // never taller than screen
-            overflowY: 'auto',        // scrollable if needed on tiny screens
-          }}
-        >
-          {/* Corner stars */}
-          {['top:10px;left:14px','top:10px;right:14px',
-            'bottom:10px;left:14px','bottom:10px;right:14px'].map((pos, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              ...Object.fromEntries(pos.split(';').map(p => p.split(':'))),
-              fontSize: 16,
-              color: '#c8b88a',
-              animation: `wiggle ${2 + i * 0.3}s ease-in-out infinite`,
-            }}>
-              ✦
-            </div>
-          ))}
-
-          {/* Party emoji row */}
-          <div style={{
-            fontSize: 'clamp(20px, 5vw, 28px)',
-            marginBottom: 12,
-            animation: 'bounce 1s ease-in-out infinite',
-            letterSpacing: '0.15em',
-          }}>
-            🎉 🎂 🎉
-          </div>
-
-          {/* Special edition label */}
-          <div style={{
-            fontSize: 9,
-            letterSpacing: '0.35em',
-            color: '#8b7355',
-            fontFamily: 'Georgia',
-            textTransform: 'uppercase',
-            marginBottom: 10,
-          }}>
-            ✦ Special Birthday Edition ✦
-          </div>
-
-          {/* Double rule */}
-          <div style={{
-            borderTop: '3px double #c8b88a',
-            margin: '0 0 18px',
-          }} />
-
-          {/* Happy Birthday */}
-          <div style={{
-            fontFamily: "'UnifrakturMaguntia', 'Georgia', serif",
-            fontSize: 'clamp(24px, 7vw, 50px)',
-            color: '#1a1208',
-            lineHeight: 1.1,
-            marginBottom: 6,
-            textShadow: '1px 1px 0 rgba(200,184,138,0.6)',
-          }}>
-            Happy Birthday
-          </div>
-
-          {/* Name */}
-          <div style={{
-            fontFamily: 'Georgia',
-            fontSize: 'clamp(18px, 5vw, 34px)',
-            fontStyle: 'italic',
-            fontWeight: 'bold',
-            animation: 'rainbow 3s linear infinite',
-            marginBottom: 18,
-          }}>
-            Colin!
-          </div>
-
-          {/* Divider */}
-          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(10,6,2,0.72)',
+            zIndex: 999,
+            animation: 'fadeIn 0.4s ease forwards',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
             justifyContent: 'center',
-            marginBottom: 18,
-          }}>
-            <div style={{ flex: 1, height: 1, background: '#c8b88a' }} />
-            <span style={{ fontSize: 18 }}>🏌️</span>
-            <div style={{ flex: 1, height: 1, background: '#c8b88a' }} />
-          </div>
-
-          {/* Message */}
-          <p style={{
-            fontFamily: 'Georgia',
-            fontSize: 'clamp(13px, 3.5vw, 15px)',
-            fontStyle: 'italic',
-            color: '#6b5a3a',
-            lineHeight: 1.9,
-            marginBottom: 10,
-          }}>
-            Happy birthday my love! Have fun filling this journal. Here are some thoughts to get you started:
-            <br />
-            1. Everyone sucks at golf.
-            <br />
-            2. Pistachios and turkey wraps are your friend. 
-            <br />
-            3. 18 holes is a long time to go without kissing your girlfriend!
-          </p>
-
-          <p style={{
-            fontFamily: 'Georgia',
-            fontSize: 13,
-            color: '#a89878',
-            fontStyle: 'italic',
-            marginBottom: 20,
-          }}>
-            A golf-themed gift really screams "I'm turning 28" doesn't it? 
-          </p>
-
-          {/* Golf ball row */}
-          <div style={{
-            fontSize: 'clamp(16px, 5vw, 22px)',
-            marginBottom: 20,
-            letterSpacing: '0.3em',
-            animation: 'bounce 1.4s ease-in-out infinite',
-          }}>
-            ⛳ 🏌️ ⛳
-          </div>
-
-          {/* Close button */}
-          <button
-            onClick={handleClose}
-            className="birthday-btn"
+            padding: '16px',
+          }}
+        >
+          {/* Card */}
+          <div
+            onClick={e => e.stopPropagation()}
             style={{
-              padding: '12px 36px',
-              background: '#1a1208',
-              border: 'none',
-              color: '#f2ead8',
-              fontSize: 11,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              fontFamily: 'Georgia',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-              width: '100%',            // full width on mobile
-              maxWidth: 280,
+              background: 'linear-gradient(160deg, #fff9f0 0%, #ede3c8 50%, #e8dbb8 100%)',
+              border: '4px double #1a1208',
+              borderRadius: 4,
+              padding: 'clamp(24px, 6vw, 44px) clamp(20px, 6vw, 52px)',
+              maxWidth: 520,
+              width: '100%',
+              textAlign: 'center',
+              animation: 'popIn 0.5s ease forwards',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              position: 'relative',
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }}
           >
-            Open Your Journal →
-          </button>
+            {/* Corner stars */}
+            {['top:10px;left:14px','top:10px;right:14px',
+              'bottom:10px;left:14px','bottom:10px;right:14px'].map((pos, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                ...Object.fromEntries(pos.split(';').map(p => p.split(':'))),
+                fontSize: 16, color: '#c8b88a',
+                animation: `wiggle ${2 + i * 0.3}s ease-in-out infinite`,
+              }}>✦</div>
+            ))}
 
-          {/* Dismiss hint */}
-          <div style={{
-            marginTop: 14,
-            fontSize: 9,
-            color: '#a89878',
-            fontFamily: 'Georgia',
-            fontStyle: 'italic',
-          }}>
-            · click anywhere to dismiss ·
+            {/* Party emoji */}
+            <div style={{
+              fontSize: 'clamp(20px, 5vw, 28px)',
+              marginBottom: 12,
+              animation: 'bounce 1s ease-in-out infinite',
+              letterSpacing: '0.15em',
+            }}>
+              🎉 🎂 🎉
+            </div>
+
+            {/* Special edition label */}
+            <div style={{
+              fontSize: 9,
+              letterSpacing: '0.35em',
+              color: '#8b7355',
+              fontFamily: 'Georgia',
+              textTransform: 'uppercase',
+              marginBottom: 10,
+            }}>
+              ✦ Special Birthday Edition ✦
+            </div>
+
+            {/* Double rule */}
+            <div style={{ borderTop: '3px double #c8b88a', margin: '0 0 18px' }} />
+
+            {/* Happy Birthday */}
+            <div style={{
+              fontFamily: "'UnifrakturMaguntia', 'Georgia', serif",
+              fontSize: 'clamp(24px, 7vw, 50px)',
+              color: '#1a1208',
+              lineHeight: 1.1,
+              marginBottom: 6,
+              textShadow: '1px 1px 0 rgba(200,184,138,0.6)',
+            }}>
+              Happy Birthday
+            </div>
+
+            {/* Name */}
+            <div style={{
+              fontFamily: 'Georgia',
+              fontSize: 'clamp(18px, 5vw, 34px)',
+              fontStyle: 'italic',
+              fontWeight: 'bold',
+              animation: 'rainbow 3s linear infinite',
+              marginBottom: 18,
+            }}>
+              Colin!
+            </div>
+
+            {/* Divider */}
+            <div style={{
+              display: 'flex', alignItems: 'center',
+              gap: 10, justifyContent: 'center', marginBottom: 18,
+            }}>
+              <div style={{ flex: 1, height: 1, background: '#c8b88a' }} />
+              <span style={{ fontSize: 18 }}>🏌️</span>
+              <div style={{ flex: 1, height: 1, background: '#c8b88a' }} />
+            </div>
+
+            {/* Message — slightly smaller */}
+            <p style={{
+              fontFamily: 'Georgia',
+              fontSize: 'clamp(11px, 3vw, 13px)',    // reduced from 13-15px
+              fontStyle: 'italic',
+              color: '#6b5a3a',
+              lineHeight: 1.9,
+              marginBottom: 10,
+            }}>
+              Happy birthday my love! Have fun filling this journal.
+              Here are some thoughts to get you started:
+              <br />1. Everyone sucks at golf.
+              <br />2. Pistachios and turkey wraps are your friend.
+              <br />3. 18 holes is a long time to go without kissing your girlfriend!
+            </p>
+
+            <p style={{
+              fontFamily: 'Georgia',
+              fontSize: 'clamp(10px, 2.5vw, 12px)',  // reduced
+              color: '#a89878',
+              fontStyle: 'italic',
+              marginBottom: 20,
+            }}>
+              A golf-themed gift really screams "I'm turning 28" doesn't it?
+            </p>
+
+            {/* Golf row */}
+            <div style={{
+              fontSize: 'clamp(16px, 5vw, 22px)',
+              marginBottom: 20,
+              letterSpacing: '0.3em',
+              animation: 'bounce 1.4s ease-in-out infinite',
+            }}>
+              ⛳ 🏌️ ⛳
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={handleClose}
+              className="birthday-btn"
+              style={{
+                padding: '12px 36px',
+                background: '#1a1208',
+                border: 'none',
+                color: '#f2ead8',
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                fontFamily: 'Georgia',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                width: '100%',
+                maxWidth: 280,
+              }}
+            >
+              Open Your Journal →
+            </button>
+
+            <div style={{
+              marginTop: 14,
+              fontSize: 9,
+              color: '#a89878',
+              fontFamily: 'Georgia',
+              fontStyle: 'italic',
+            }}>
+              · click anywhere to dismiss ·
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

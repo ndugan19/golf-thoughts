@@ -43,15 +43,18 @@ export default function Auth() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#F5ECD7',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 24,
-    }}>
+  <div style={{
+    minHeight: 'max(100vh, 100dvh)',
+    background: '#F5ECD7',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',   // changed from center
+    paddingTop: 'max(40px, 8vh)',   // responsive top padding
+    paddingBottom: '24px',
+    paddingLeft: '16px',
+    paddingRight: '16px',
+  }}>
       {/* Masthead */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <div style={{
