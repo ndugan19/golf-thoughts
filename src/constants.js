@@ -21,8 +21,8 @@ export const CAT_BG = {
   Mental:     '#f5ebe6',
   Routine:    '#e4ecf5',
   Practice:   '#f9e8f9',
-  'Short Game': '#e4f5e4',
-  'Long Game':  '#e6f5e6',
+  'Short Game': '#e9f6e9',
+  'Long Game':  '#e1f2e1',
 };
 
 export const STORAGE_KEY = 'golf_thoughts_v3';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const BIRTHDAY_MONTH = 3;
-const BIRTHDAY_DAY   = 28;
+const BIRTHDAY_DAY   = 29;
 
 function isBirthday() {
   const today = new Date();
