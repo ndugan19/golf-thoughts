@@ -82,7 +82,6 @@ function ConfettiPiece({ left, delay, duration, color, size, shape }) {
 
 export default function BirthdayBanner() {
   const [visible, setVisible]       = useState(false);
-  const [closing, setClosing]       = useState(false);
   const [releasing, setReleasing]   = useState(false);   // balloon release state
   const [elements, setElements]     = useState({ balloons: [], confetti: [] });
 
