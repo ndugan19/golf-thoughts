@@ -112,37 +112,45 @@ export default function Compose({ thoughts, onAddThought, onImport }) {
         display: 'flex',
         gap: 16,
         marginBottom: 16,
-        flexWrap: 'wrap',
       }}>
-        <div style={{ flex: '1 1 110px', minWidth: 0 }}>
-          <label style={labelStyle}>Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            style={inputStyle}
-          />
+        {/* Date + Score stacked on left */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: '1 1 110px', minWidth: 0 }}>
+          <div>
+            <label style={labelStyle}>Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Score (optional)</label>
+            <input
+              type="number"
+              value={score}
+              onChange={e => setScore(e.target.value)}
+              placeholder="e.g. 82"
+              min={40}
+              max={200}
+              style={inputStyle}
+            />
+          </div>
         </div>
-        <div style={{ flex: '2 1 180px', minWidth: 0 }}>
+
+        {/* Course on right, full height */}
+        <div style={{ flex: '1 1 110px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           <label style={labelStyle}>Course (optional)</label>
-          <input
-            type="text"
+          <textarea
             value={course}
             onChange={e => setCourse(e.target.value)}
             placeholder="e.g. Mastick Woods"
-            style={{ ...inputStyle, fontStyle: 'italic' }}
-          />
-        </div>
-        <div style={{ flex: '1 1 80px', minWidth: 0 }}>
-          <label style={labelStyle}>Score (optional)</label>
-          <input
-            type="number"
-            value={score}
-            onChange={e => setScore(e.target.value)}
-            placeholder="e.g. 82"
-            min={40}
-            max={200}
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              fontStyle: 'italic',
+              flex: 1,
+              resize: 'none',
+            }}
           />
         </div>
       </div>
