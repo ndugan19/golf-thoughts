@@ -8,6 +8,7 @@ export default function ThoughtCard({
   onToggleStar,
   onDelete,
   onOpenNote,
+  onOpenEdit,
   isHighlighted,
 }) {
   return (
@@ -29,7 +30,7 @@ export default function ThoughtCard({
             border: 'none',
             fontSize: 25,
             color: thought.starred ? '#c8860a' : '#d4c49a',
-            padding: '4px 6px',              // changed: wider tap target
+            padding: '4px 6px',
             lineHeight: 1,
             flexShrink: 0,
             opacity: !canStar && !thought.starred ? 0.35 : 1,
@@ -40,7 +41,7 @@ export default function ThoughtCard({
           &#9733;
         </button>
 
-        <div style={{ flex: 1, minWidth: 0 }}>  {/* added minWidth:0 — prevents text overflow */}
+        <div style={{ flex: 1, minWidth: 0 }}>
 
           {/* Thought text */}
           <p style={{
@@ -50,25 +51,30 @@ export default function ThoughtCard({
             fontStyle: 'italic',
             fontFamily: 'Geist Mono',
             color: '#1a1208',
-            wordBreak: 'break-word',         // added: long words won't overflow
+            wordBreak: 'break-word',
           }}>
             {thought.text}
           </p>
 
-          {/* Course and date */}
-          {thought.course && (
+          {/* Course, date, score */}
+          {(thought.course || thought.score != null) && (
             <p style={{
               margin: '0 0 6px',
               fontSize: 12,
               color: '#8b7355',
               fontFamily: 'Geist Mono',
               fontStyle: 'italic',
-              wordBreak: 'break-word',       // added
+              wordBreak: 'break-word',
             }}>
-              &#9971; {thought.course}
+              {thought.course && <>&#9971; {thought.course}</>}
               {thought.date && (
                 <span style={{ color: '#a89878', marginLeft: 8 }}>
                   &middot; {thought.date}
+                </span>
+              )}
+              {thought.score != null && (
+                <span style={{ color: '#6b5a3a', marginLeft: 8 }}>
+                  &middot; Score: {thought.score}
                 </span>
               )}
             </p>
@@ -85,7 +91,7 @@ export default function ThoughtCard({
               fontStyle: 'italic',
               borderLeft: '2px solid #d4c49a',
               paddingLeft: 10,
-              wordBreak: 'break-word',       // added
+              wordBreak: 'break-word',
             }}>
               {thought.note}
             </p>
@@ -116,13 +122,29 @@ export default function ThoughtCard({
                 background: 'none',
                 border: 'none',
                 fontFamily: 'Geist Mono',
-                padding: '4px 0',            // changed: taller tap target
+                padding: '4px 0',
                 textDecoration: 'underline',
                 textUnderlineOffset: 2,
                 cursor: 'pointer',
               }}
             >
               {thought.note ? 'Edit note' : 'Add note'}
+            </button>
+            <button
+              onClick={() => onOpenEdit(thought)}
+              style={{
+                fontSize: 10,
+                color: '#8b7355',
+                background: 'none',
+                border: 'none',
+                fontFamily: 'Geist Mono',
+                padding: '4px 0',
+                textDecoration: 'underline',
+                textUnderlineOffset: 2,
+                cursor: 'pointer',
+              }}
+            >
+              Edit
             </button>
             <button
               onClick={() => onDelete(thought.id)}
@@ -132,7 +154,7 @@ export default function ThoughtCard({
                 background: 'none',
                 border: 'none',
                 fontFamily: 'Geist Mono',
-                padding: '4px 0',            // changed: taller tap target
+                padding: '4px 0',
                 textDecoration: 'underline',
                 textUnderlineOffset: 2,
                 cursor: 'pointer',

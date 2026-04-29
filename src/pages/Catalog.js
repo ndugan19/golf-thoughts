@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CATEGORIES, CAT_COLORS } from '../constants';
 import ThoughtCard from '../components/ThoughtCard';
 import NoteModal from '../components/NoteModal';
+import EditModal from '../components/EditModal';
 import { useWindowSize } from '../hooks/useWindowSize';
 
 export default function Catalog({
@@ -10,14 +11,16 @@ export default function Catalog({
   onToggleStar,
   onDelete,
   onSaveNote,
+  onEditThought,
 }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [search, setSearch]                 = useState('');
   const [noteThought, setNoteThought]       = useState(null);
+  const [editThought, setEditThought]       = useState(null);
   const [sidebarOpen, setSidebarOpen]       = useState(false);
   const { isMobile }                        = useWindowSize();
 
-  const starred  = thoughts.filter(t => t.starred);
+  const starred = thoughts.filter(t => t.starred);
 
   const filtered = thoughts.filter(t => {
     const matchCat =
@@ -30,6 +33,11 @@ export default function Catalog({
   function handleSaveNote(id, note) {
     onSaveNote(id, note);
     setNoteThought(null);
+  }
+
+  function handleSaveEdit(id, updates) {
+    onEditThought(id, updates);
+    setEditThought(null);
   }
 
   const SidebarContent = () => (
@@ -129,10 +137,36 @@ export default function Catalog({
     </>
   );
 
+  const thoughtList = filtered.length === 0 ? (
+    <div style={{
+      color: '#a89878',
+      fontStyle: 'italic',
+      fontSize: 15,
+      paddingTop: 40,
+      textAlign: 'center',
+      fontFamily: 'Geist Mono',
+    }}>
+      No thoughts found.
+    </div>
+  ) : (
+    filtered.map(t => (
+      <ThoughtCard
+        key={t.id}
+        thought={t}
+        isHighlighted={justAddedId === t.id}
+        canStar={starred.length < 3}
+        onToggleStar={onToggleStar}
+        onDelete={onDelete}
+        onOpenNote={setNoteThought}
+        onOpenEdit={setEditThought}
+      />
+    ))
+  );
+
   return (
     <div style={{ minHeight: 'calc(100vh - 120px)' }}>
 
-      {/* Mobile filter bar — only on mobile */}
+      {/* Mobile filter bar */}
       {isMobile && (
         <div style={{
           display: 'flex',
@@ -157,7 +191,6 @@ export default function Catalog({
           >
             ☰ Filter
           </button>
-
           <span style={{
             fontSize: 11,
             fontFamily: 'Geist Mono',
@@ -166,7 +199,6 @@ export default function Catalog({
           }}>
             {activeCategory}
           </span>
-
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -186,7 +218,7 @@ export default function Catalog({
         </div>
       )}
 
-      {/* Mobile drawer overlay — only on mobile */}
+      {/* Mobile drawer overlay */}
       {isMobile && sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -194,12 +226,12 @@ export default function Catalog({
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.35)',
-            zIndex: 110,                    // above masthead (100)
+            zIndex: 110,
           }}
         />
       )}
 
-      {/* Mobile drawer panel — only on mobile */}
+      {/* Mobile drawer panel */}
       {isMobile && (
         <div style={{
           position: 'fixed',
@@ -209,9 +241,9 @@ export default function Catalog({
           height: '100%',
           background: '#ede3c8',
           borderRight: '1px solid #d4c49a',
-          paddingTop: 80,                   // clears the masthead height
+          paddingTop: 80,
           paddingBottom: 24,
-          zIndex: 120,                      // above overlay
+          zIndex: 120,
           overflowY: 'auto',
           transition: 'left 0.25s ease',
         }}>
@@ -219,7 +251,7 @@ export default function Catalog({
         </div>
       )}
 
-      {/* Desktop layout — only on desktop */}
+      {/* Desktop layout */}
       {!isMobile && (
         <div style={{ display: 'flex' }}>
           <div style={{
@@ -231,69 +263,16 @@ export default function Catalog({
           }}>
             <SidebarContent />
           </div>
-
-          <div style={{
-            flex: 1,
-            padding: '24px 32px',
-            overflowY: 'auto',
-          }}>
-            {filtered.length === 0 ? (
-              <div style={{
-                color: '#a89878',
-                fontStyle: 'italic',
-                fontSize: 15,
-                paddingTop: 40,
-                textAlign: 'center',
-                fontFamily: 'Geist Mono',
-              }}>
-                No thoughts found.
-              </div>
-            ) : (
-              filtered.map(t => (
-                <ThoughtCard
-                  key={t.id}
-                  thought={t}
-                  isHighlighted={justAddedId === t.id}
-                  canStar={starred.length < 3}
-                  onToggleStar={onToggleStar}
-                  onDelete={onDelete}
-                  onOpenNote={setNoteThought}
-                />
-              ))
-            )}
+          <div style={{ flex: 1, padding: '24px 32px', overflowY: 'auto' }}>
+            {thoughtList}
           </div>
         </div>
       )}
 
-      {/* Mobile thought list — only on mobile */}
+      {/* Mobile thought list */}
       {isMobile && (
-        <div style={{
-          padding: '16px 16px',
-        }}>
-          {filtered.length === 0 ? (
-            <div style={{
-              color: '#a89878',
-              fontStyle: 'italic',
-              fontSize: 15,
-              paddingTop: 40,
-              textAlign: 'center',
-              fontFamily: 'Geist Mono',
-            }}>
-              No thoughts found.
-            </div>
-          ) : (
-            filtered.map(t => (
-              <ThoughtCard
-                key={t.id}
-                thought={t}
-                isHighlighted={justAddedId === t.id}
-                canStar={starred.length < 3}
-                onToggleStar={onToggleStar}
-                onDelete={onDelete}
-                onOpenNote={setNoteThought}
-              />
-            ))
-          )}
+        <div style={{ padding: '16px 16px' }}>
+          {thoughtList}
         </div>
       )}
 
@@ -301,6 +280,12 @@ export default function Catalog({
         thought={noteThought}
         onSave={handleSaveNote}
         onClose={() => setNoteThought(null)}
+      />
+
+      <EditModal
+        thought={editThought}
+        onSave={handleSaveEdit}
+        onClose={() => setEditThought(null)}
       />
     </div>
   );

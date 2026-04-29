@@ -9,6 +9,7 @@ import Catalog from './pages/Catalog';
 import Compose from './pages/Compose';
 import CourseMap from './pages/CourseMap';
 import BirthdayBanner from './components/BirthdayBanner';
+import { syncToSheet } from './googleSheets';
 import {
   loadThoughts,
   addThoughtToDB,
@@ -18,11 +19,11 @@ import {
 } from './storage';
 
 export default function App() {
-  const [session, setSession]         = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [thoughts, setThoughts]       = useState([]);
-  const [view, setView]               = useState('frontpage');
-  const [justAddedId, setJustAddedId] = useState(null);
+  const [session, setSession]             = useState(null);
+  const [loading, setLoading]             = useState(true);
+  const [thoughts, setThoughts]           = useState([]);
+  const [view, setView]                   = useState('frontpage');
+  const [justAddedId, setJustAddedId]     = useState(null);
   const [randomThought, setRandomThought] = useState(null);
 
   // Single auth listener — handles both session tracking and password recovery
@@ -70,7 +71,17 @@ export default function App() {
 
   const starred = thoughts.filter(t => t.starred);
 
-  async function addThought(text, categories, date, course) {
+  async function editThought(id, updates) {
+   setThoughts(prev =>
+    prev.map(t => t.id === id ? { ...t, ...updates } : t)
+  );
+  await updateThoughtInDB(id, updates);
+  // Sync to sheet
+  const thought = thoughts.find(t => t.id === id);
+  if (thought) syncToSheet({ ...thought, ...updates });
+}
+
+  async function addThought(text, categories, date, course, score) {
     let longitude = null;
     let latitude  = null;
 
@@ -83,22 +94,21 @@ export default function App() {
       }
     }
 
-    const newThought = {
-      id: uuidv4(),
-      text,
-      categories,
-      timestamp: Date.now(),
-      date: date || new Date().toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      course:    course || '',
-      longitude,
-      latitude,
-      starred:   false,
-      note:      '',
-    };
+   const newThought = {
+    id: uuidv4(),
+    text,
+    categories,
+    timestamp: Date.now(),
+    date: date || new Date().toLocaleDateString('en-US', {
+      month: 'long', day: 'numeric', year: 'numeric',
+    }),
+    course:    course || '',
+    longitude,
+    latitude,
+    starred:   false,
+    note:      '',
+    score:     score ?? null,   // add this line
+  };
 
     console.log('Saving thought with coords:', newThought.longitude, newThought.latitude);
 
@@ -106,7 +116,9 @@ export default function App() {
     setJustAddedId(newThought.id);
     setTimeout(() => setJustAddedId(null), 2000);
     setView('catalog');
+
     await addThoughtToDB(newThought);
+    syncToSheet(newThought); // silent background backup
   }
 
   async function toggleStar(id) {
@@ -118,11 +130,16 @@ export default function App() {
       prev.map(t => t.id === id ? { ...t, starred: newStarred } : t)
     );
     await updateThoughtInDB(id, { starred: newStarred });
+
+    // Sync updated thought to sheet
+    const updated = { ...thought, starred: newStarred };
+    syncToSheet(updated);
   }
 
   async function deleteThought(id) {
     setThoughts(prev => prev.filter(t => t.id !== id));
     await deleteThoughtFromDB(id);
+    // No sheet sync on delete — we keep deleted thoughts in the sheet as a safety net
   }
 
   async function saveNote(id, note) {
@@ -130,6 +147,10 @@ export default function App() {
       prev.map(t => t.id === id ? { ...t, note } : t)
     );
     await updateThoughtInDB(id, { note });
+
+    // Sync updated thought to sheet
+    const thought = thoughts.find(t => t.id === id);
+    if (thought) syncToSheet({ ...thought, note });
   }
 
   function shuffleRandom() {
@@ -199,6 +220,7 @@ export default function App() {
           onToggleStar={toggleStar}
           onDelete={deleteThought}
           onSaveNote={saveNote}
+          onEditThought={editThought}
         />
       )}
 
